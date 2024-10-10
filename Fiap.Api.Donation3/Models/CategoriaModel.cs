@@ -7,6 +7,7 @@ namespace Fiap.Api.Donation3.Models
 
         public int CategoriaId { get; set; }
 
+        [Required]
         public string NomeCategoria { get; set; }
 
 
