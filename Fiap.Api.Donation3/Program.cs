@@ -1,4 +1,6 @@
 using Fiap.Api.Donation3.Data;
+using Fiap.Api.Donation3.Repository;
+using Fiap.Api.Donation3.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,9 +15,8 @@ builder.Services.AddDbContext<DataContext>(
     options => options.UseSqlServer(connectionString).EnableSensitiveDataLogging(true)
 );
 
-
-
-
+builder.Services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

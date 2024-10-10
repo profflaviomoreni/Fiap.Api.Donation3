@@ -8,12 +8,13 @@ namespace Fiap.Api.Donation3.Data
 
         public DbSet<CategoriaModel> Categorias { get; set; }
 
+        public DbSet<UsuarioModel> Usuarios { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-
-            // Fluent API - EF
+            #region Categoria
             modelBuilder.Entity<CategoriaModel>( entity =>
             {
                 entity.ToTable("Categoria");
@@ -33,6 +34,40 @@ namespace Fiap.Api.Donation3.Data
                 new CategoriaModel() { CategoriaId = 1, NomeCategoria = "Celular"},
                 new CategoriaModel() { CategoriaId = 2, NomeCategoria = "Gadgets" }
             );
+            #endregion
+
+            #region Usuario
+            modelBuilder.Entity<UsuarioModel>(entity =>
+            {
+                entity.ToTable("Usuario");
+                entity.HasKey(e => e.UsuarioId);
+
+                entity.Property(e => e.UsuarioId).ValueGeneratedOnAdd();
+
+                entity.Property(e => e.NomeUsuario)
+                            .IsRequired()
+                            .HasMaxLength(100);
+
+                entity.Property(e => e.EmailUsuario)
+                            .IsRequired()
+                            .HasMaxLength(100);
+
+                entity.Property(e => e.Senha)
+                            .IsRequired()
+                            .HasMaxLength(100);
+
+                entity.Property(e => e.Regra)
+                            .IsRequired()
+                            .HasMaxLength(100);
+
+            });
+
+
+            modelBuilder.Entity<UsuarioModel>().HasData(
+                new UsuarioModel(1, "admin@admin", "Admin", "admin123","admin"),
+                new UsuarioModel(2, "fmoreni@gmail.com", "Flavio Moreni", "123456", "admin")
+            );
+            #endregion
 
         }
 
