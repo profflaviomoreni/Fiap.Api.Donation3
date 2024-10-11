@@ -10,6 +10,8 @@ namespace Fiap.Api.Donation3.Data
 
         public DbSet<UsuarioModel> Usuarios { get; set; }
 
+        public DbSet<ProdutoModel> Produtos { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -25,6 +27,9 @@ namespace Fiap.Api.Donation3.Data
                 entity.Property(e => e.NomeCategoria)
                             .IsRequired()
                             .HasMaxLength(50);
+
+                entity.HasIndex(e => e.NomeCategoria)
+                        .IsUnique();
 
             } );
 
@@ -60,6 +65,9 @@ namespace Fiap.Api.Donation3.Data
                             .IsRequired()
                             .HasMaxLength(100);
 
+                entity.HasIndex(e => e.NomeUsuario)
+                    .IsUnique();
+
             });
 
 
@@ -67,6 +75,48 @@ namespace Fiap.Api.Donation3.Data
                 new UsuarioModel(1, "admin@admin", "Admin", "admin123","admin"),
                 new UsuarioModel(2, "fmoreni@gmail.com", "Flavio Moreni", "123456", "admin")
             );
+            #endregion
+
+            #region Produto
+            modelBuilder.Entity<ProdutoModel>(entity => {
+
+                entity.ToTable("Produto");
+
+                entity.HasKey(e => e.ProdutoId);
+                entity.Property(e => e.ProdutoId)
+                        .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.Nome)
+                      .IsRequired()
+                      .HasMaxLength(50);
+
+                entity.Property(e => e.SugestaoTroca)
+                      .IsRequired()
+                      .HasMaxLength(200);
+
+                entity.Property(e => e.Valor)
+                      .IsRequired()
+                      .HasPrecision(18, 2);
+
+                entity.Property(e => e.DataCadastro)
+                      .IsRequired();
+
+                entity.Property(e => e.DataExpiracao)
+                      .IsRequired();
+
+                // Relacionamento Categoria
+                entity.HasOne(e => e.Categoria)
+                        .WithMany()
+                        .HasForeignKey(e => e.CategoriaId)
+                        .IsRequired();
+
+                // Relacionamento Usuario
+                entity.HasOne( e => e.Usuario )
+                        .WithMany()
+                        .HasForeignKey (e => e.UsuarioId)
+                        .IsRequired();
+
+            });
             #endregion
 
         }
