@@ -4,7 +4,7 @@ namespace Fiap.Api.Donation3.Repository.Interface
 {
     public interface ICategoriaRepository
     {
-        public IList<CategoriaModel> FindAll();
+        public Task<IList<CategoriaModel>> FindAll();
 
         public CategoriaModel FindById(int id);
 

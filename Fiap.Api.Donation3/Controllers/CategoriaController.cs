@@ -17,9 +17,9 @@ namespace Fiap.Api.Donation3.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IList<CategoriaModel>> Get()
+        public async Task<ActionResult<IList<CategoriaModel>>> Get()
         {
-            var listaCategorias = _categoriaRepository.FindAll();
+            var listaCategorias = await _categoriaRepository.FindAll();
 
             if ( listaCategorias != null && listaCategorias.Count > 0 )
             {

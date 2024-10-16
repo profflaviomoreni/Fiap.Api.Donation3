@@ -22,7 +22,7 @@ namespace Fiap.Api.Donation3.Repository
             _dataContext.SaveChanges();
         }
 
-        public IList<CategoriaModel> FindAll()
+        public async Task<IList<CategoriaModel>> FindAll()
         {
             return _dataContext.Categorias.AsNoTracking().ToList();
         }

@@ -1,6 +1,7 @@
 ﻿using Fiap.Api.Donation3.Data;
 using Fiap.Api.Donation3.Models;
 using Fiap.Api.Donation3.Repository.Interface;
+using Microsoft.EntityFrameworkCore;
 
 namespace Fiap.Api.Donation3.Repository
 {
@@ -50,9 +51,11 @@ namespace Fiap.Api.Donation3.Repository
             _dataContext.SaveChanges();
         }
 
-        public UsuarioModel FindByEmailAndSenha(string email, string senha)
+        public async Task<UsuarioModel> FindByEmailAndSenha(string email, string senha)
         {
-            var usuario = _dataContext.Usuarios.FirstOrDefault(
+            var usuario = await _dataContext.Usuarios
+                .AsNoTracking()
+                .FirstOrDefaultAsync(
                     u => u.EmailUsuario == email &&
                          u.Senha == senha
                 );
