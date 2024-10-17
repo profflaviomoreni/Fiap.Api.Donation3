@@ -22,6 +22,34 @@ namespace Fiap.Api.Donation3.Repository
         }
 
 
+        public IList<ProdutoModel> FindAll(int pagina = 0, int tamanho = 5)
+        {
+            var produtos = dataContext.Produtos.AsNoTracking()
+                                .OrderBy( p => p.Nome )
+                                .Skip( tamanho * pagina )
+                                .Take( tamanho )
+                                .ToList();
+
+            return produtos == null ? new List<ProdutoModel>() : produtos;
+        }
+
+        public IList<ProdutoModel> FindAll(DateTime? dataRef, int tamanho)
+        {
+            var produtos = dataContext.Produtos.AsNoTracking()
+                                .Where( p => p.DataCadastro > dataRef )
+                                .OrderBy(p => p.DataCadastro)
+                                .Take(tamanho)
+                                .ToList();
+
+            return produtos == null ? new List<ProdutoModel>() : produtos;
+        }
+
+        public int Count()
+        {
+            return dataContext.Produtos.Count();
+        }
+
+
         public IList<ProdutoModel> FindByNome(string nome)
         {
             var produtos = dataContext

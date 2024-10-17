@@ -38,6 +38,7 @@ namespace Fiap.Api.Donation3.Controllers
         [Route("Login")]
         public async Task<ActionResult<dynamic>> Login([FromBody] UsuarioModel usuarioModel)
         {
+
             var usuarioRetorno = await _usuarioRepository.FindByEmailAndSenha(usuarioModel.EmailUsuario, usuarioModel.Senha);
 
             if (usuarioRetorno != null )

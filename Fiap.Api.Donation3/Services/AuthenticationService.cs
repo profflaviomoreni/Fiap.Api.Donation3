@@ -21,9 +21,11 @@ namespace Fiap.Api.Donation3.Services
                 {
                     new Claim(ClaimTypes.Name, usuarioModel.NomeUsuario),
                     new Claim(ClaimTypes.Email, usuarioModel.EmailUsuario),
-                    new Claim(ClaimTypes.Role, usuarioModel.Regra)
+                    new Claim(ClaimTypes.Role, usuarioModel.Regra),
+                    new Claim("UsuarioId", usuarioModel.UsuarioId.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(5),
+                Issuer = "fiap",
                 SigningCredentials = new SigningCredentials( 
                     new SymmetricSecurityKey(secret) , 
                     SecurityAlgorithms.HmacSha256Signature)
