@@ -18,24 +18,20 @@ namespace Fiap.Api.Donation3.Controllers
 
         [HttpGet]
         public ActionResult<dynamic> Get(
-            [FromQuery] string dataReferencia,
+            [FromQuery] int produtoIdRef = 0,
             [FromQuery] int tamanho = 5)
         {
 
-            var data = ( string.IsNullOrEmpty(dataReferencia) ) ? 
-                            DateTime.UtcNow.AddYears(-200) :
-                            DateTime.ParseExact(dataReferencia, "yyyy-MM-ddTHH:mm:ss.fffffff", null, System.Globalization.DateTimeStyles.RoundtripKind); ;
-
-            var produtos = produtoRepository.FindAll(data, 5);
+            var produtos = produtoRepository.FindAllByIdRef(produtoIdRef, 5);
 
             if (produtos == null || produtos.Count() == 0)
             {
                 return NoContent();
             }
 
-            var ultimaData = produtos.LastOrDefault().DataCadastro.ToString("yyyy-MM-ddTHH:mm:ss.fffffff");
+            var ultimoId = produtos.LastOrDefault().ProdutoId;
  
-            var linkProxima = $"/api/produto?dataReferencia={ultimaData}&tamanho={tamanho}";
+            var linkProxima = $"/api/produto?produtoIdRef={ultimoId}&tamanho={tamanho}";
 
             var retorno = new
             {

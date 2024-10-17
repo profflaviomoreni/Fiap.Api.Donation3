@@ -9,7 +9,7 @@ namespace Fiap.Api.Donation3.Repository.Interface
 
         public IList<ProdutoModel> FindAll(int pagina, int tamanho);
 
-        public IList<ProdutoModel> FindAll(DateTime? dataRef, int tamanho);
+        public IList<ProdutoModel> FindAllByIdRef(int produtoIdRef, int tamanho);
 
         public int Count();
 

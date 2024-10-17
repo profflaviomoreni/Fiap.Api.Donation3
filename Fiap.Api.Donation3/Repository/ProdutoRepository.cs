@@ -44,6 +44,19 @@ namespace Fiap.Api.Donation3.Repository
             return produtos == null ? new List<ProdutoModel>() : produtos;
         }
 
+
+        public IList<ProdutoModel> FindAllByIdRef(int produtoIdRef, int tamanho)
+        {
+            var produtos = dataContext.Produtos.AsNoTracking()
+                                .Where(p => p.ProdutoId > produtoIdRef)
+                                .OrderBy(p => p.DataCadastro)
+                                .Take(tamanho)
+                                .ToList();
+
+            return produtos == null ? new List<ProdutoModel>() : produtos;
+        }
+
+
         public int Count()
         {
             return dataContext.Produtos.Count();
