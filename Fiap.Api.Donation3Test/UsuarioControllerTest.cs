@@ -1,104 +1,86 @@
-﻿//using AutoMapper;
-//using Fiap.Api.Donation3.Controllers;
-//using Fiap.Api.Donation3.Models;
-//using Fiap.Api.Donation3.Repository.Interface;
-//using Fiap.Api.Donation3.ViewModel;
-//using Microsoft.AspNetCore.Mvc;
-//using Moq;
+﻿using Fiap.Api.Donation3.Controllers;
+using Fiap.Api.Donation3.Models;
+using Fiap.Api.Donation3.Repository.Interface;
+using Fiap.Api.Donation3.ViewModel;
+using Microsoft.AspNetCore.Mvc;
+using Moq;
 
-//namespace Fiap.Api.Donation3Test
-//{
-//    public class UsuarioControllerTest
-//    {
+namespace Fiap.Api.Donation3Test
+{
+    public class UsuarioControllerTest : BaseTest
+    {
+        private readonly Mock<IUsuarioRepository> _mockUsuarioRepository;
 
-//        private readonly Mock<IUsuarioRepository> _mockUsuarioRepository;
+        public UsuarioControllerTest()
+        {
+            _mockUsuarioRepository = new Mock<IUsuarioRepository>();
+        }
 
-//        private readonly Mock<IMapper> _mockMapper;
+        [Fact]
+        public async Task GetUsuarioResultOkWithUsuarios()
+        {
+            // Arrange
+            var usuarios = new List<UsuarioModel> {
+                new UsuarioModel { UsuarioId = 1, NomeUsuario = "Usuario 1" },
+                new UsuarioModel { UsuarioId = 2, NomeUsuario = "Usuario 2" }
+            };
 
-//        private readonly IMapper _mapper;
+            _mockUsuarioRepository.Setup(r => r.FindAllAsync()).ReturnsAsync(usuarios);
 
+            var controller = new UsuarioController(_mockUsuarioRepository.Object, _mapper);
 
-//        public UsuarioControllerTest()
-//        {
-//            _mockUsuarioRepository = new Mock<IUsuarioRepository>();      
-            
-//            _mockMapper = new Mock<IMapper>();
+            // Act
+            var result = await controller.Get();
 
+            // Assert
+            var resultType = Assert.IsType<OkObjectResult>(result.Result);
+            var resultValue = Assert.IsType<List<UsuarioResponseViewModel>>(resultType.Value);
 
-//            var configMapper = new MapperConfiguration(m => {
-//                m.AllowNullDestinationValues = true;
-//                m.AllowNullCollections = true;
-
-//                m.CreateMap<UsuarioModel, LoginRequestVM>();
-//                m.CreateMap<LoginRequestVM, UsuarioModel>();
-
-//                m.CreateMap<UsuarioModel, LoginResponseVM>();
-//                m.CreateMap<LoginResponseVM, UsuarioModel>();
-//            });
-
-//            _mapper = configMapper.CreateMapper();
-//        }
-
-
-//        [Fact]
-//        //public async Task GetUsuarioResultOkWithUsuarios()
-//        public void GetUsuarioResultOkWithUsuarios()
-//        {
-//            var usuarios = new List<UsuarioModel>() {
-//                new UsuarioModel()
-//            };
-
-//            _mockUsuarioRepository.Setup( r => r.FindAll() ).Returns( usuarios );
-
-//            var controller = new UsuarioController(_mockUsuarioRepository.Object, _mapper);
-
-//            var result = controller.Get();
-
-//            var resultType = Assert.IsType<OkObjectResult>(result.Result);
-//            var resultValue = Assert.IsType<List<UsuarioModel>>(resultType.Value);
-
-//            Assert.Single(resultValue);
-//            Assert.Equal(1, resultValue.Count);
-
-//        }
-
-//        [Fact]
-//        public void GetUsuarioResultOkWith3Usuarios()
-//        {
-//            var usuarios = new List<UsuarioModel>() {
-//                new UsuarioModel(),
-//                new UsuarioModel(),
-//                new UsuarioModel()
-//            };
-
-//            _mockUsuarioRepository.Setup(r => r.FindAll()).Returns(usuarios);
-
-//            var controller = new UsuarioController(_mockUsuarioRepository.Object, _mockMapper.Object);
-
-//            var result = controller.Get();
-
-//            var resultType = Assert.IsType<OkObjectResult>(result.Result);
-//            var resultValue = Assert.IsType<List<UsuarioModel>>(resultType.Value);
-
-//            Assert.Equal(3, resultValue.Count);
-
-//        }
+            Assert.Equal(2, resultValue.Count);
+            Assert.Equal("Usuario 1", resultValue[0].NomeUsuario);
+            Assert.Equal("Usuario 2", resultValue[1].NomeUsuario);
+        }
 
 
-//        [Fact]
-//        public void GetUsuarioResultNoContent()
-//        {
-//            var usuarios = new List<UsuarioModel>();
+        [Fact]
+        public async Task GetUsuarioResultOkWith3Usuarios()
+        {
+            // Arrange
+            var usuarios = new List<UsuarioModel> {
+                new UsuarioModel { UsuarioId = 1, NomeUsuario = "Usuario 1" },
+                new UsuarioModel { UsuarioId = 2, NomeUsuario = "Usuario 2" },
+                new UsuarioModel { UsuarioId = 3, NomeUsuario = "Usuario 3" }
+            };
 
-//            _mockUsuarioRepository.Setup(r => r.FindAll()).Returns(usuarios);
+            _mockUsuarioRepository.Setup(r => r.FindAllAsync()).ReturnsAsync(usuarios);
 
-//            var controller = new UsuarioController(_mockUsuarioRepository.Object, _mockMapper.Object);
+            var controller = new UsuarioController(_mockUsuarioRepository.Object, _mapper);
 
-//            var result = controller.Get();
+            // Act
+            var result = await controller.Get();
 
-//            Assert.IsType<NoContentResult>(result.Result);
+            // Assert
+            var resultType = Assert.IsType<OkObjectResult>(result.Result);
+            var resultValue = Assert.IsType<List<UsuarioResponseViewModel>>(resultType.Value);
 
-//        }
+            Assert.Equal(3, resultValue.Count);
+        }
 
-//    }
-//}
+        [Fact]
+        public async Task GetUsuarioResultNoContent()
+        {
+            // Arrange
+            var usuarios = new List<UsuarioModel>();
+
+            _mockUsuarioRepository.Setup(r => r.FindAllAsync()).ReturnsAsync(usuarios);
+
+            var controller = new UsuarioController(_mockUsuarioRepository.Object, _mapper);
+
+            // Act
+            var result = await controller.Get();
+
+            // Assert
+            Assert.IsType<NoContentResult>(result.Result);
+        }
+    }
+}
