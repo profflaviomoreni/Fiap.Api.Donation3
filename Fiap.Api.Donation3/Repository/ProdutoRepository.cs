@@ -7,116 +7,110 @@ namespace Fiap.Api.Donation3.Repository
 {
     public class ProdutoRepository : IProdutoRepository
     {
-        private readonly DataContext dataContext;
+        private readonly DataContext _dataContext;
 
         public ProdutoRepository(DataContext ctx)
         {
-            dataContext = ctx;
+            _dataContext = ctx;
         }
 
-        public IList<ProdutoModel> FindAll()
+        public async Task<IList<ProdutoModel>> FindAllAsync()
         {
-            var produtos = dataContext.Produtos.AsNoTracking().ToList();
-
-            return produtos == null ? new List<ProdutoModel>() : produtos;
+            var produtos = await _dataContext.Produtos.AsNoTracking().ToListAsync();
+            return produtos ?? new List<ProdutoModel>();
         }
 
-
-        public IList<ProdutoModel> FindAll(int pagina = 0, int tamanho = 5)
+        public async Task<IList<ProdutoModel>> FindAllAsync(int pagina = 0, int tamanho = 5)
         {
-            var produtos = dataContext.Produtos.AsNoTracking()
-                                .OrderBy( p => p.Nome )
-                                .Skip( tamanho * pagina )
-                                .Take( tamanho )
-                                .ToList();
+            var produtos = await _dataContext.Produtos
+                                .Include(c => c.Categoria)
+                                .Include(u => u.Usuario)
+                                    .AsNoTracking()
+                                    .OrderBy(p => p.Nome)
+                                    .Skip(tamanho * pagina)
+                                    .Take(tamanho)
+                                    .ToListAsync();
 
-            return produtos == null ? new List<ProdutoModel>() : produtos;
+            return produtos ?? new List<ProdutoModel>();
         }
 
-        public IList<ProdutoModel> FindAll(DateTime? dataRef, int tamanho)
+        public async Task<IList<ProdutoModel>> FindAllAsync(DateTime? dataRef, int tamanho)
         {
-            var produtos = dataContext.Produtos.AsNoTracking()
-                                .Where( p => p.DataCadastro > dataRef )
-                                .OrderBy(p => p.DataCadastro)
-                                .Take(tamanho)
-                                .ToList();
+            var produtos = await _dataContext.Produtos
+                                .Include(c => c.Categoria)
+                                .Include(u => u.Usuario)
+                                    .AsNoTracking()
+                                    .Where(p => p.DataCadastro > dataRef)
+                                    .OrderBy(p => p.DataCadastro)
+                                    .Take(tamanho)
+                                    .ToListAsync();
 
-            return produtos == null ? new List<ProdutoModel>() : produtos;
+            return produtos ?? new List<ProdutoModel>();
         }
 
-
-        public IList<ProdutoModel> FindAllByIdRef(int produtoIdRef, int tamanho)
+        public async Task<IList<ProdutoModel>> FindAllByIdRefAsync(int produtoIdRef, int tamanho)
         {
-            var produtos = dataContext.Produtos.AsNoTracking()
-                                .Where(p => p.ProdutoId > produtoIdRef)
-                                .OrderBy(p => p.DataCadastro)
-                                .Take(tamanho)
-                                .ToList();
+            var produtos = await _dataContext.Produtos
+                                .Include ( c => c.Categoria )
+                                .Include ( u => u.Usuario )
+                                    .AsNoTracking()
+                                    .Where(p => p.ProdutoId > produtoIdRef)
+                                    .OrderBy(p => p.DataCadastro)
+                                    .Take(tamanho)
+                                    .ToListAsync();
 
-            return produtos == null ? new List<ProdutoModel>() : produtos;
+            return produtos ?? new List<ProdutoModel>();
         }
 
-
-        public int Count()
+        public async Task<int> CountAsync()
         {
-            return dataContext.Produtos.Count();
+            return await _dataContext.Produtos.CountAsync();
         }
 
-
-        public IList<ProdutoModel> FindByNome(string nome)
+        public async Task<IList<ProdutoModel>> FindByNomeAsync(string nome)
         {
-            var produtos = dataContext
-                                .Produtos // SELECT * FROM Produtos
-                                .AsNoTracking()
-                                .Include(p => p.Categoria) // INNER JOIN
-                                .Where(p => p.Nome.ToLower().Contains(nome.ToLower()))
-                                    .ToList();
-
-            return produtos == null ? new List<ProdutoModel>() : produtos;
-        }
-
-        public ProdutoModel FindById(int id)
-        {
-            var produto = dataContext
+            var produtos = await _dataContext
                                 .Produtos
                                 .AsNoTracking()
-                                .FirstOrDefault(p => p.ProdutoId == id);
+                                .Include(p => p.Categoria)
+                                .Where(p => p.Nome.ToLower().Contains(nome.ToLower()))
+                                .ToListAsync();
 
-            return produto;
+            return produtos ?? new List<ProdutoModel>();
         }
 
-        // Inserir
-        public int Insert(ProdutoModel produtoModel)
+        public async Task<ProdutoModel> FindByIdAsync(int id)
         {
-            dataContext.Produtos.Add(produtoModel);
-            dataContext.SaveChanges();
+            return await _dataContext.Produtos
+                        .Include(c => c.Categoria)
+                        .Include(u => u.Usuario)
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync(p => p.ProdutoId == id);
+        }
 
+        public async Task<int> InsertAsync(ProdutoModel produtoModel)
+        {
+            await _dataContext.Produtos.AddAsync(produtoModel);
+            await _dataContext.SaveChangesAsync();
             return produtoModel.ProdutoId;
         }
 
-        public void Update(ProdutoModel produtoModel)
+        public async Task UpdateAsync(ProdutoModel produtoModel)
         {
-            dataContext.Produtos.Update(produtoModel);
-            dataContext.SaveChanges();
+            _dataContext.Produtos.Update(produtoModel);
+            await _dataContext.SaveChangesAsync();
         }
 
-        public void Delete(ProdutoModel produtoModel)
+        public async Task DeleteAsync(ProdutoModel produtoModel)
         {
-            dataContext.Produtos.Remove(produtoModel);
-            dataContext.SaveChanges();
+            _dataContext.Produtos.Remove(produtoModel);
+            await _dataContext.SaveChangesAsync();
         }
 
-
-        public void Delete(int id)
+        public async Task DeleteAsync(int id)
         {
-            var produtoModel = new ProdutoModel()
-            {
-                ProdutoId = id,
-            };
-
-            Delete(produtoModel);
+            var produtoModel = new ProdutoModel() { ProdutoId = id };
+            await DeleteAsync(produtoModel);
         }
-
-
     }
 }

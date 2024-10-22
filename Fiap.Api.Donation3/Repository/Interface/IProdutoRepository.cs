@@ -4,26 +4,16 @@ namespace Fiap.Api.Donation3.Repository.Interface
 {
     public interface IProdutoRepository
     {
-
-        public IList<ProdutoModel> FindAll();
-
-        public IList<ProdutoModel> FindAll(int pagina, int tamanho);
-
-        public IList<ProdutoModel> FindAllByIdRef(int produtoIdRef, int tamanho);
-
-        public int Count();
-
-        public IList<ProdutoModel> FindByNome(string nome);
-
-        public ProdutoModel FindById(int id);
-
-        public int Insert(ProdutoModel produtoModel);
-
-        public void Update(ProdutoModel produtoModel);
-
-        public void Delete(ProdutoModel produtoModel);
-
-        public void Delete(int id);
-
+        Task<IList<ProdutoModel>> FindAllAsync();
+        Task<IList<ProdutoModel>> FindAllAsync(int pagina, int tamanho);
+        Task<IList<ProdutoModel>> FindAllAsync(DateTime? dataRef, int tamanho);
+        Task<IList<ProdutoModel>> FindAllByIdRefAsync(int produtoIdRef, int tamanho);
+        Task<int> CountAsync();
+        Task<IList<ProdutoModel>> FindByNomeAsync(string nome);
+        Task<ProdutoModel> FindByIdAsync(int id);
+        Task<int> InsertAsync(ProdutoModel produtoModel);
+        Task UpdateAsync(ProdutoModel produtoModel);
+        Task DeleteAsync(ProdutoModel produtoModel);
+        Task DeleteAsync(int id);
     }
 }

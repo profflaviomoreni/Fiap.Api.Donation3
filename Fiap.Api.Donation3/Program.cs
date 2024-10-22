@@ -93,6 +93,20 @@ var mapperConfig = new AutoMapper.MapperConfiguration( m =>
     m.CreateMap<UsuarioModel, UsuarioPatchViewModel>();
     m.CreateMap<UsuarioPatchViewModel, UsuarioModel>();
 
+
+    m.CreateMap<ProdutoRequestViewModel, ProdutoModel>();
+
+    m.CreateMap<ProdutoPatchViewModel, ProdutoModel>()
+            .ForAllMembers( opts => 
+                                opts.Condition((src, dest, srcMember) => srcMember != null)
+                           ); 
+    m.CreateMap<ProdutoModel, ProdutoPatchViewModel>();
+
+    m.CreateMap<ProdutoModel, ProdutoResponseViewModel>()
+            .ForMember(dest => dest.NomeCategoria, opt => opt.MapFrom(src => src.Categoria != null ? src.Categoria.NomeCategoria : string.Empty))
+            .ForMember(dest => dest.NomeUsuario, opt => opt.MapFrom(src => src.Usuario != null ? src.Usuario.NomeUsuario : string.Empty));
+
+
 });
 IMapper mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
