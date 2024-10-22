@@ -1,7 +1,10 @@
+using AutoMapper;
 using Fiap.Api.Donation3;
 using Fiap.Api.Donation3.Data;
+using Fiap.Api.Donation3.Models;
 using Fiap.Api.Donation3.Repository;
 using Fiap.Api.Donation3.Repository.Interface;
+using Fiap.Api.Donation3.ViewModel;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -62,6 +65,23 @@ builder.Services.AddAuthentication(a =>
         LifetimeValidator = CustomLifetimeValidator,
     };
 });
+#endregion
+
+
+#region AutoMapper
+var mapperConfig = new AutoMapper.MapperConfiguration( m =>
+{
+    m.AllowNullDestinationValues = true;
+    m.AllowNullCollections = true;
+
+    m.CreateMap<UsuarioModel, LoginRequestVM>();
+    m.CreateMap<LoginRequestVM, UsuarioModel>();
+
+    m.CreateMap<UsuarioModel, LoginResponseVM>();
+    m.CreateMap<LoginResponseVM, UsuarioModel>();
+});
+IMapper mapper = mapperConfig.CreateMapper();
+builder.Services.AddSingleton(mapper);
 #endregion
 
 builder.Services.AddEndpointsApiExplorer();

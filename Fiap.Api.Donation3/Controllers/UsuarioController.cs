@@ -1,6 +1,8 @@
-﻿using Fiap.Api.Donation3.Models;
+﻿using AutoMapper;
+using Fiap.Api.Donation3.Models;
 using Fiap.Api.Donation3.Repository.Interface;
 using Fiap.Api.Donation3.Services;
+using Fiap.Api.Donation3.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fiap.Api.Donation3.Controllers
@@ -12,9 +14,29 @@ namespace Fiap.Api.Donation3.Controllers
 
         private readonly IUsuarioRepository _usuarioRepository;
 
-        public UsuarioController(IUsuarioRepository usuarioRepository)
+        private readonly IMapper _mapper;
+
+        public UsuarioController(IUsuarioRepository usuarioRepository, IMapper mapper)
         {
             _usuarioRepository = usuarioRepository;
+            _mapper = mapper;
+        }
+
+
+        [HttpGet]
+        public ActionResult<IList<UsuarioModel>> Get()
+        {
+            var usuarios = _usuarioRepository.FindAll();
+
+            if (usuarios != null && usuarios.Count > 0)
+            {
+                return Ok(usuarios);
+            }
+            else
+            {
+                return NoContent();
+            }
+
         }
 
 
@@ -36,27 +58,40 @@ namespace Fiap.Api.Donation3.Controllers
 
         [HttpPost]
         [Route("Login")]
-        public async Task<ActionResult<dynamic>> Login([FromBody] UsuarioModel usuarioModel)
+        public async Task<ActionResult<LoginResponseVM>> Login([FromBody] LoginRequestVM loginRequestVM)
         {
 
-            var usuarioRetorno = await _usuarioRepository.FindByEmailAndSenha(usuarioModel.EmailUsuario, usuarioModel.Senha);
-
-            if (usuarioRetorno != null )
+            if (ModelState.IsValid)
             {
-                usuarioRetorno.Senha = string.Empty;
+                var usuarioModel = await _usuarioRepository
+                        .FindByEmailAndSenha(loginRequestVM.EmailUsuario, loginRequestVM.Senha);
 
-                var tokenJWT = AuthenticationService.GetToken(usuarioRetorno);
 
-                var retorno = new
+                if (usuarioModel != null)
                 {
-                    usuario = usuarioRetorno,
-                    token = tokenJWT
-                };
 
-                return Ok(retorno);
+                    var tokenJWT = AuthenticationService.GetToken(usuarioModel);
+
+                    var loginResponseVM = _mapper.Map<LoginResponseVM>(usuarioModel);
+                    loginResponseVM.Token = tokenJWT;
+
+                    //var loginResponseVM = new LoginResponseVM();
+                    //loginResponseVM.Token = tokenJWT;
+                    //loginResponseVM.EmailUsuario = usuarioModel.EmailUsuario;
+                    //loginResponseVM.NomeUsuario = usuarioModel.NomeUsuario;
+                    //loginResponseVM.Regra = usuarioModel.Regra;
+                    //loginResponseVM.UsuarioId = usuarioModel.UsuarioId;
+
+
+                    return Ok(loginResponseVM);
+                }
+                else
+                {
+                    return NotFound();
+                }
             } else
             {
-                return NotFound();
+                return BadRequest(ModelState);
             }
 
         }
