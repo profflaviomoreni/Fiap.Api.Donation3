@@ -7,7 +7,6 @@ namespace Fiap.Api.Donation3.Repository
 {
     public class UsuarioRepository : IUsuarioRepository
     {
-
         private readonly DataContext _dataContext;
 
         public UsuarioRepository(DataContext ctx)
@@ -15,54 +14,41 @@ namespace Fiap.Api.Donation3.Repository
             _dataContext = ctx;
         }
 
-
-        public IList<UsuarioModel> FindAll()
+        public async Task<IList<UsuarioModel>> FindAllAsync()
         {
-            return _dataContext.Usuarios.ToList();
+            return await _dataContext.Usuarios.ToListAsync();
         }
 
-        public UsuarioModel FindById(int id)
+        public async Task<UsuarioModel> FindByIdAsync(int id)
         {
-            var usuario = _dataContext.Usuarios.FirstOrDefault(u => u.UsuarioId == id);
-
-            return usuario;
+            return await _dataContext.Usuarios.FirstOrDefaultAsync(u => u.UsuarioId == id);
         }
 
-        public void Delete(int id)
+        public async Task DeleteAsync(int id)
         {
-            var usuario = new UsuarioModel();
-            usuario.UsuarioId = id;
-
+            var usuario = new UsuarioModel { UsuarioId = id };
             _dataContext.Usuarios.Remove(usuario);
-            _dataContext.SaveChanges();
+            await _dataContext.SaveChangesAsync();
         }
 
-        public int Insert(UsuarioModel usuarioModel)
+        public async Task<int> InsertAsync(UsuarioModel usuarioModel)
         {
-            _dataContext.Usuarios.Add(usuarioModel);
-            _dataContext.SaveChanges();
-
+            await _dataContext.Usuarios.AddAsync(usuarioModel);
+            await _dataContext.SaveChangesAsync();
             return usuarioModel.UsuarioId;
         }
 
-        public void Update(UsuarioModel usuarioModel)
+        public async Task UpdateAsync(UsuarioModel usuarioModel)
         {
             _dataContext.Usuarios.Update(usuarioModel);
-            _dataContext.SaveChanges();
+            await _dataContext.SaveChangesAsync();
         }
 
-        public async Task<UsuarioModel> FindByEmailAndSenha(string email, string senha)
+        public async Task<UsuarioModel> FindByEmailAndSenhaAsync(string email, string senha)
         {
-            var usuario = await _dataContext.Usuarios
+            return await _dataContext.Usuarios
                 .AsNoTracking()
-                .FirstOrDefaultAsync(
-                    u => u.EmailUsuario == email &&
-                         u.Senha == senha
-                );
-
-            return usuario;
+                .FirstOrDefaultAsync(u => u.EmailUsuario == email && u.Senha == senha);
         }
-
-
     }
 }

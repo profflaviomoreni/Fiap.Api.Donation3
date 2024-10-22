@@ -16,6 +16,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 //builder.Services.AddControllers();
 builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
+    })
     .ConfigureApiBehaviorOptions(options =>
     {
         options.SuppressModelStateInvalidFilter = true;
@@ -82,6 +86,12 @@ var mapperConfig = new AutoMapper.MapperConfiguration( m =>
 
     m.CreateMap<CategoriaModel, CategoriaResponseViewModel>();
     m.CreateMap<CategoriaRequestViewModel, CategoriaModel>();
+
+    m.CreateMap<UsuarioModel, UsuarioResponseViewModel>();
+    m.CreateMap<UsuarioRequestViewModel, UsuarioModel>();
+
+    m.CreateMap<UsuarioModel, UsuarioPatchViewModel>();
+    m.CreateMap<UsuarioPatchViewModel, UsuarioModel>();
 
 });
 IMapper mapper = mapperConfig.CreateMapper();
