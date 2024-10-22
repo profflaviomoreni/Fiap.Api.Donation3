@@ -79,6 +79,10 @@ var mapperConfig = new AutoMapper.MapperConfiguration( m =>
 
     m.CreateMap<UsuarioModel, LoginResponseVM>();
     m.CreateMap<LoginResponseVM, UsuarioModel>();
+
+    m.CreateMap<CategoriaModel, CategoriaResponseViewModel>();
+    m.CreateMap<CategoriaRequestViewModel, CategoriaModel>();
+
 });
 IMapper mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);

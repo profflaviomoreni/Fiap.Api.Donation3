@@ -1,5 +1,7 @@
-﻿using Fiap.Api.Donation3.Models;
+﻿using AutoMapper;
+using Fiap.Api.Donation3.Models;
 using Fiap.Api.Donation3.Repository.Interface;
+using Fiap.Api.Donation3.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Fiap.Api.Donation3.Controllers
@@ -8,111 +10,116 @@ namespace Fiap.Api.Donation3.Controllers
     [ApiController]
     public class CategoriaController : ControllerBase
     {
-
         private readonly ICategoriaRepository _categoriaRepository;
+        private readonly IMapper _mapper;
 
-        public CategoriaController(ICategoriaRepository categoriaRepository)
+        public CategoriaController(ICategoriaRepository categoriaRepository, IMapper mapper)
         {
             _categoriaRepository = categoriaRepository;
+            _mapper = mapper;
+        }
+
+        private ActionResult ValidateModelState()
+        {
+            if (!ModelState.IsValid)
+            {
+                var errorMessages = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(new { Errors = errorMessages });
+            }
+            return null;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IList<CategoriaModel>>> Get()
+        public async Task<ActionResult<IList<CategoriaResponseViewModel>>> Get()
         {
-            var listaCategorias = await _categoriaRepository.FindAll();
+            var listaCategorias = await _categoriaRepository.FindAllAsync();
 
-            if ( listaCategorias != null && listaCategorias.Count > 0 )
+            if (listaCategorias != null && listaCategorias.Count > 0)
             {
-                return Ok(listaCategorias);
-            } else
+                var categoriaResponse = _mapper.Map<IList<CategoriaResponseViewModel>>(listaCategorias);
+                return Ok(categoriaResponse);
+            }
+            else
             {
                 return NoContent();
             }
-            
         }
-
 
         [HttpGet("{id:int}")]
-        public ActionResult<CategoriaModel> Get([FromRoute] int id)
+        public async Task<ActionResult<CategoriaResponseViewModel>> Get([FromRoute] int id)
         {
-            var categoriaModel = _categoriaRepository.FindById(id);
+            var categoriaModel = await _categoriaRepository.FindByIdAsync(id);
 
-            if ( categoriaModel != null )
+            if (categoriaModel != null)
             {
-                return Ok(categoriaModel);
-            } else
+                var categoriaResponse = _mapper.Map<CategoriaResponseViewModel>(categoriaModel);
+                return Ok(categoriaResponse);
+            }
+            else
             {
                 return NotFound();
             }
-            
         }
-
 
         [HttpDelete("{id:int}")]
-        public ActionResult Delete([FromRoute] int id)
+        public async Task<ActionResult> Delete([FromRoute] int id)
         {
-            if ( id == 0 )
+            if (id == 0)
             {
                 return BadRequest();
             }
 
-            var categoria = _categoriaRepository.FindById(id);
-            if ( categoria == null )
-            {
-                return NotFound();
-            }
-
-
-            _categoriaRepository.Delete(id);
-            return NoContent();
-        }
-
-
-        [HttpPost]
-        public ActionResult<CategoriaModel> Post([FromBody] CategoriaModel categoriaModel)
-        {
-            if ( ModelState.IsValid )
-            {
-                var categoriaId = _categoriaRepository.Insert(categoriaModel);
-                categoriaModel.CategoriaId = categoriaId;
-
-                return CreatedAtAction( nameof(Get), new { id = categoriaId } , categoriaModel );
-            } else
-            {
-                return BadRequest();
-            }
-
-        }
-
-
-
-        [HttpPut("{id:int}")]
-        public ActionResult Put([FromRoute]int id, [FromBody] CategoriaModel categoriaModel)
-        {
-            if ( ModelState.IsValid == false ) {
-                var errors = ModelState.Values
-                                .SelectMany(m => m.Errors)
-                                .Select(m => m.ErrorMessage);
-
-                return BadRequest(errors);
-            }
-             
-            if ( id != categoriaModel.CategoriaId)
-            {
-                return BadRequest( new { erro = "Ids divergentes, operação não efetuada" } );
-            }
-
-            var categoria = _categoriaRepository.FindById(id);
+            var categoria = await _categoriaRepository.FindByIdAsync(id);
             if (categoria == null)
             {
                 return NotFound();
             }
 
-            _categoriaRepository.Update(categoriaModel);
+            await _categoriaRepository.DeleteAsync(id);
             return NoContent();
-
         }
 
+        [HttpPost]
+        public async Task<ActionResult<CategoriaResponseViewModel>> Post([FromBody] CategoriaRequestViewModel categoriaRequest)
+        {
+            var validationError = ValidateModelState();
+            if (validationError != null)
+            {
+                return validationError;
+            }
 
+            var categoriaModel = _mapper.Map<CategoriaModel>(categoriaRequest);
+            var categoriaId = await _categoriaRepository.InsertAsync(categoriaModel);
+            categoriaModel.CategoriaId = categoriaId;
+
+            var categoriaResponse = _mapper.Map<CategoriaResponseViewModel>(categoriaModel);
+            return CreatedAtAction(nameof(Get), new { id = categoriaId }, categoriaResponse);
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> Put([FromRoute] int id, [FromBody] CategoriaRequestViewModel categoriaRequest)
+        {
+            var validationError = ValidateModelState();
+            if (validationError != null)
+            {
+                return validationError;
+            }
+
+            var categoriaExistente = await _categoriaRepository.FindByIdAsync(id);
+            if (categoriaExistente == null)
+            {
+                return NotFound();
+            }
+
+            var categoriaModel = _mapper.Map(categoriaRequest, categoriaExistente);
+            categoriaModel.CategoriaId = id; // Assegura que o ID não seja alterado
+
+            await _categoriaRepository.UpdateAsync(categoriaModel);
+            return NoContent();
+        }
     }
 }

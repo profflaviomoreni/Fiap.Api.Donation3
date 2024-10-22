@@ -1,19 +1,15 @@
 ﻿using Fiap.Api.Donation3.Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Fiap.Api.Donation3.Repository.Interface
 {
     public interface ICategoriaRepository
     {
-        public Task<IList<CategoriaModel>> FindAll();
-
-        public CategoriaModel FindById(int id);
-
-        public int Insert(CategoriaModel categoriaModel);
-
-        public void Update(CategoriaModel categoriaModel);
-
-        public void Delete(int id);
-
-
+        Task DeleteAsync(int id);
+        Task<IList<CategoriaModel>> FindAllAsync();
+        Task<CategoriaModel> FindByIdAsync(int id);
+        Task<int> InsertAsync(CategoriaModel categoriaModel);
+        Task UpdateAsync(CategoriaModel categoriaModel);
     }
 }
