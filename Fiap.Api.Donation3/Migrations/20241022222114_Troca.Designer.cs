@@ -4,6 +4,7 @@ using Fiap.Api.Donation3.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fiap.Api.Donation3.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241022222114_Troca")]
+    partial class Troca
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -122,16 +125,11 @@ namespace Fiap.Api.Donation3.Migrations
                     b.Property<int>("TrocaStatus")
                         .HasColumnType("int");
 
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("int");
-
                     b.HasKey("TrocaId");
 
                     b.HasIndex("ProdutoIdEscolhido");
 
                     b.HasIndex("ProdutoIdMeu");
-
-                    b.HasIndex("UsuarioId");
 
                     b.ToTable("Troca", (string)null);
                 });
@@ -223,17 +221,9 @@ namespace Fiap.Api.Donation3.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Fiap.Api.Donation3.Models.UsuarioModel", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("ProdutoEscolhido");
 
                     b.Navigation("ProdutoMeu");
-
-                    b.Navigation("Usuario");
                 });
 #pragma warning restore 612, 618
         }

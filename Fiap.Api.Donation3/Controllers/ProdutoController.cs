@@ -8,7 +8,10 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Fiap.Api.Donation3.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiVersion("1.0", Deprecated = true)]
+    [ApiVersion("2.0")]
+    [ApiVersion("3.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class ProdutoController : ControllerBase
     {
@@ -21,7 +24,28 @@ namespace Fiap.Api.Donation3.Controllers
             _mapper = mapper;
         }
 
+
+        [ApiVersion("1.0")]
+        [Authorize(Roles = "admin, operador, revisor")]
+        [HttpGet]
+        public async Task<ActionResult<IList<ProdutoResponseViewModel>>> Get()
+        {
+            var produtos = await _produtoRepository.FindAllAsync();
+            if (produtos == null || produtos.Count == 0)
+            {
+                return NoContent();
+            }
+
+            var produtosResponse = _mapper.Map<IList<ProdutoResponseViewModel>>(produtos);
+
+            return Ok(produtosResponse);
+        }
+
+
+
         // Métodos Get - Acesso permitido para admin, operador e revisor
+        [ApiVersion("2.0")]
+        [ApiVersion("3.0")]
         [Authorize(Roles = "admin, operador, revisor")]
         [HttpGet]
         public async Task<ActionResult<dynamic>> Get([FromQuery] int produtoIdRef = 0, [FromQuery] int tamanho = 5)
@@ -45,6 +69,9 @@ namespace Fiap.Api.Donation3.Controllers
 
             return Ok(retorno);
         }
+
+
+
 
         [Authorize(Roles = "admin, operador, revisor")]
         [HttpGet("{id}")]
